@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- boostrap css cdn -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <div id="app" class="container mt-3">
+       <div class="text-right mt-4">
+           <button class="btn btn-info text-white active" @click="openModal('add')">建立新產品</button>
+       </div>
+       <table class="table mt-4">
+           <thead>
+               <tr class="table-warning">
+                   <th width="120">類別</th>
+                   <th width="120">產品名稱</th>
+                   <th width="120">原價</th>
+                   <th width="120">特價</th>
+                   <th width="100">是否啟用</th>
+                   <th width="120">編輯</th>
+               </tr>
+           </thead>
+           <tbody>
+               <tr v-for="(item) in products" :key="item.id">
+                   <th class=""> {{item.category}} </th>
+                   <th class="text-danger"> {{item.title}} </th>
+                   <th> {{item.origin_price}} </th>
+                   <th> {{item.price}} </th>
+                   <th>
+                       <span v-if="item.is_enabled" class="text-success">啟用</span>
+                       <span v-else>未啟用</span>
+                   </th>
+                   <th>
+                       <button class="btn btn-outline-info btn-sm"  @click="openModal('edit',item)">Edit</button>
+                       <button class="btn btn-outline-danger btn-sm" @click="openModal('delete',item)">Delete</button>
+                   </th>
+               </tr>
+           </tbody>
+       </table>
+       <!-- Modal 視窗製作 -->
+       <div id="productModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+           <div class="modal-dialog modal-xl" role="document">
+               <div class="modal-content border-0">
+                   <div class="modal-header bg-danger text-white">
+                       <h5 id="exampleModalLabel" class="modal-title">
+                           <span >新增產品</span>
+                       </h5>
+                       <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                   </div>
+                   <div class="modal-body">
+                       <div class="row">
+                           <div class="col-sm-4">
+                               <div class="form-group">
+                                   <label for="imageUrl">輸入圖片網址</label>
+                                   <input type="text" id="imageUrl" v-model="tempProduct.imageUrl" class="form-control" placeholder="請輸入圖片連結">
+                               </div>
+                               <img class="img-fluid" :src="tempProduct.imageUrl">
+                           </div>
+                           <div class="col-sm-8">
+                               <div class="form-group">
+                                   <label for="tilte">商品名稱</label>
+                                   <input type="text" id="tilte" class="form-control" v-model="tempProduct.title" placeholder="請輸入商品名稱">
+                               </div>
+                               <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="category">類別</label>
+                                        <input id="category" v-model="tempProduct.category" type="text" class="form-control"
+                                        placeholder="請輸入產品類別" >
+                                    </div>
+                                   <div class="form-group col-md-6">
+                                       <label for="unit">單位</label>
+                                       <input type="text" id="unit" class="form-control" v-model="tempProduct.unit" placeholder="請輸入商品單位">
+                                   </div>
+                               </div>
+                               <div class="form-row">
+                                   <div class="form-group col-md-6">
+                                       <label for="origin_price">原價</label>
+                                       <input type="number" id="origin_price" class="form-control" v-model="tempProduct.origin_price" placeholder="請輸入原價">
+                                   </div>
+                                   <div class="form-group col-md-6">
+                                       <label for="price">特價</label>
+                                       <input type="number" id="price" class="form-control" v-model="tempProduct.price" placeholder="請輸入特價價格">
+                                   </div>
+                               </div>
+                               <hr>
+                               <div class="form-group">
+                                   <label for="description">產品描述</label>
+                                   <textarea type="text" id="description" class="form-control" v-model="tempProduct.description" placeholder="請輸入商品描述"></textarea>
+                               </div>
+                               <div class="form-group">
+                                   <label for="content">產品說明</label>
+                                   <textarea type="text" id="content"  class="form-control" v-model="tempProduct.content" placeholder="請輸入產品說明或注意事項"></textarea>
+                               </div>
+                               <div class="form-group">
+                                   <div class="form-check">
+                                       <input type="checkbox" id="is_enabled" class="form-check-input" :true-value="1" :false-value="0" v-model="tempProduct.is_enabled">
+                                       <label class="form-check-label" for="is_enabled">是否啟用</label>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="modal-footer">
+                       <button class="btn btn-outline-secondary" type="button" data-dismiss="modal">Cancel</button>
+                       <button class="btn btn-danger" type="button" @click="updateProduct">Done</button>
+                   </div>
+               </div>
+           </div>
+       </div>
+       <div id="delProductModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+           <div class="modal-dialog" role="document">
+               <div class="modal-content border-0">
+                   <div class="modal-header bg-danger text-white">
+                       <h5 id="exampleModalLable" class="modal-tilte">
+                           <span>刪除產品</span>
+                       </h5>
+                       <button type="button" class="close" data-dismiss="modal" aria-level="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                   </div>
+                   <div class="modal-body">
+                        是否要刪除 <strong class="text-danger"> {{tempProduct.title}} </strong>產品（刪除後將無法恢復）。
+                   </div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                       <button type="button" class="btn btn-dager" @click="delProduct">Delete</button>
+                   </div>
+               </div>
+           </div>
+       </div>
+    </div>
+
+    <!-- boostrap js cdn -->
+      <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+        </script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+        </script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+        </script>
+        <!-- vue.js cdn -->
+      <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+      <!-- w3_js -->
+      <script src="jsw3.js"></script>
+</html>
